@@ -13,24 +13,29 @@ export default function Home() {
   const calculateBetSize = () => {
     if (poolSize < 1) {
       setBetSize(poolSize * 0.9)
-      setPoolSize(0)
       return
     }
     
     const fraction = Math.max(0, 1/Math.log(poolSize))
     if (fraction > 0.9) {
       setBetSize(poolSize * 0.9)
-      setPoolSize(0)
       return
     }
 
     setBetSize(poolSize * fraction)
-    setPoolSize(0)
   }
 
   return (
     <VStack w='screen' h='screen' justify='center'>
-      <Input w='1/2' placeholder='Pool size' value={poolSize} onChange={(e) => setPoolSize(Number(e.target.value))} />
+      <Input onKeyDown={(e) => {
+        console.log(e.key)
+        if (e.key !== 'Enter') return
+        calculateBetSize()
+      }} w='1/2' placeholder='Pool size' value={poolSize} onChange={(e) => {
+        // returning if the value is not a number
+        if (isNaN(Number(e.target.value)) && e.target.value !== '') return
+        setPoolSize(Number(e.target.value))
+      }} />
       <Button onClick={calculateBetSize}>Calculate Bet Size</Button>
       { betSize !== 0 && <Text>{betSize}</Text> }
     </VStack>
