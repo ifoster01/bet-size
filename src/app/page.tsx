@@ -66,12 +66,40 @@ export default function Home() {
       setErrorMsg('Book odds must be greater than 100')
       return
     }
+    if (convertToProbability(bookOdds) > 0.75) {
+      setBetSize(0)
+      setErrorMsg('You should not bet on this event or any event with a book probability greater than 75%')
+      return
+    }
+    const realPredicted = posPredicted ? predictedOdds : predictedOdds * -1
+    const realBook = posBook ? bookOdds : bookOdds * -1
+    if (realPredicted > -200) {
+      setBetSize(0)
+      setErrorMsg('You should not bet on this event or any event with a predicted probability less than 66.67%')
+      return
+    }
 
     setErrorMsg('')
 
-    const predictedProb = convertToProbability(posPredicted ? predictedOdds : predictedOdds * -1)
+    let betSize = 0
+    const fraction = Math.max(0, 1/Math.log(poolSize))
+    if (poolSize < 1) {
+      betSize = poolSize * 0.9
+    } else if (fraction > 0.9) {
+      betSize = poolSize * 0.9
+    } else {
+      betSize = poolSize * fraction
+    }
+
+    console.log('Real Predicted', realPredicted)
+    console.log('Real Book', realBook)
+    if (realPredicted > realBook) {
+      setBetSize(betSize * 0.75)
+      return
+    }
+
+    const predictedProb = convertToProbability(realPredicted)
     const lossProb = 1 - predictedProb
-    const bookProb = convertToProbability(posBook ? bookOdds : bookOdds * -1)
 
     let payout = 1
     if (posBook) {
@@ -80,8 +108,12 @@ export default function Home() {
       payout = 100 / bookOdds
     }
 
-    const betSize = (predictedProb - (lossProb / payout))
-    console.log(predictedProb, lossProb, bookProb, betSize, betSize * poolSize)
+    betSize = (predictedProb - (lossProb / payout))
+    console.log('Predicted', predictedProb)
+    console.log('Predicted Loss', lossProb)
+    console.log('Payout', payout)
+    console.log('Bet size fraction', betSize)
+    console.log('Bet size', poolSize*betSize)
 
     if (betSize < 0) {
       setBetSize(0)
@@ -90,24 +122,6 @@ export default function Home() {
     }
 
     setBetSize(betSize * poolSize)
-
-    // let payout = 1
-    // if (bookOdds !== 100) {
-    //   payout = 
-    // }
-
-    // if (poolSize < 1) {
-    //   setBetSize(poolSize * 0.9)
-    //   return
-    // }
-    
-    // const fraction = Math.max(0, 1/Math.log(poolSize))
-    // if (fraction > 0.9) {
-    //   setBetSize(poolSize * 0.9)
-    //   return
-    // }
-
-    // setBetSize(poolSize * fraction)
   }
 
   return (
