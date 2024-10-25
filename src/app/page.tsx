@@ -66,7 +66,7 @@ export default function Home() {
       setErrorMsg('Book odds must be greater than 100')
       return
     }
-    if (convertToProbability(bookOdds) > 0.75) {
+    if (convertToProbability(posBook ? bookOdds : bookOdds * -1) > 0.75) {
       setBetSize(0)
       setErrorMsg('You should not bet on this event or any event with a book probability greater than 75%')
       return
