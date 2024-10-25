@@ -73,7 +73,7 @@ export default function Home() {
     }
     const realPredicted = posPredicted ? predictedOdds : predictedOdds * -1
     const realBook = posBook ? bookOdds : bookOdds * -1
-    if (realPredicted > -200) {
+    if (realPredicted > -180) {
       setBetSize(0)
       setErrorMsg('You should not bet on this event or any event with a predicted probability less than 66.67%')
       return
